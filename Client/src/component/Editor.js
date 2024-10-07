@@ -1,20 +1,20 @@
 import React, { useEffect } from 'react'
 import { useRef } from 'react';// Import the codemirror module
 import 'codemirror/mode/javascript/javascript';     // Code mirror mode for javascript
+import "../App.css";
 import 'codemirror/theme/dracula.css';
 import 'codemirror/addon/edit/closetag';
 import 'codemirror/addon/edit/closebrackets';
 import "codemirror/lib/codemirror.css"; // Code mirror css
-import CodeMirror from "codemirror"; 
+import CodeMirror from "codemirror";
 import { Socket } from 'socket.io-client';
-
-
+import Form from 'react-bootstrap/Form';
 
 
 
 // code editor
 
-function Editor({socketRef , roomId , onCodeChange}) {
+function Editor({ socketRef, roomId, onCodeChange }) {
   const editorRef = useRef(null);
 
   useEffect(() => {
@@ -29,11 +29,11 @@ function Editor({socketRef , roomId , onCodeChange}) {
           lineNumbers: true,
         }
       );
-  
+
       // for sync code
       editorRef.current = editor;
       editor.setSize(null, "100%");
-  
+
       editor.on("change", (instance, changes) => {
         const { origin } = changes;
         const code = instance.getValue();
@@ -46,28 +46,43 @@ function Editor({socketRef , roomId , onCodeChange}) {
         }
       });
     };
-  
-    init(); 
-  }, []);
-  
 
-  useEffect(()=>{
-    if(socketRef.current){
-       socketRef.current.on("code-change", ({code})=>{
-   if(code != null){
-    editorRef.current.setValue(code);
-   }
-       });
+    init();
+  }, []);
+
+
+  useEffect(() => {
+    if (socketRef.current) {
+      socketRef.current.on("code-change", ({ code }) => {
+        if (code != null) {
+          editorRef.current.setValue(code);
+        }
+      });
     }
-    return ()=> {
+    return () => {
       socketRef.current.off("code-change");
     };
-  },[socketRef.current]);
+  }, [socketRef.current]);
 
   return (
-    <div style={{height:"600px"}}>
+    <>
+      {/* Code Section */}
+      <div style={{ height: "400px" }}>
         <textarea id="realTimeEditor" spellCheck="false"></textarea>
-    </div> 
+      </div>
+
+      {/* Output Section */}
+      <div className='bg-dark' style={{ height: "auto" }}>
+
+        <div className='w-full px-2'>
+          <h4 className='text-sm'>Output</h4>
+        </div>
+
+        <Form.Group className="mb-3 text-white" controlId="exampleForm.ControlTextarea1">
+          <Form.Control as="textarea" className='bg-transparent text-white' rows={7} style={{border: "none", outline:"none", resize:"none", color:"whitesmoke"}} placeholder="Your output here ..."/>
+        </Form.Group>
+      </div>
+    </>
   )
 }
 
