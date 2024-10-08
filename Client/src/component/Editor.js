@@ -109,7 +109,7 @@ function Editor({ socketRef, lang, roomId, onCodeChange }) {
       {/* Output Section */}
       <div className='bg-dark' style={{ height: "auto" }}>
 
-        <div className='w-full px-2 d-flex justify-content-between mt-2'>
+        <div className='w-full mb-2 px-2 d-flex justify-content-between mt-2'>
           <h4 className='text-sm'>Output</h4>
           <div className='mx-3 text-success' style={{ cursor: "pointer" }}>
             <button type="button" id="runCode" className='btn btn-primary' data-toggle="tooltip" data-placement="top" title="Run Code">
@@ -119,11 +119,24 @@ function Editor({ socketRef, lang, roomId, onCodeChange }) {
         </div>
 
         <Form.Group className="mb-3 text-white">
-          <Form.Control as="textarea" id="Output" className='bg-transparent text-white' rows={7} style={{ border: "none", outline: "none", resize: "none", color: "whitesmoke" }} placeholder="Your output here ..." disabled />
+          <Form.Control as="textarea" id="Output" className='text-warning rounded-top-4 px-4 py-3' rows={7} style={{ border: "none", outline: "none", resize: "none", background: "#282A36", paddingLeft:"5px", fontSize:"20px" }} placeholder="Your output here ..." disabled />
         </Form.Group>
+
+
+        <style>
+          {` 
+                    ::placeholder { 
+                        color: #198754 !important; 
+                        font-size: 19px;
+                    }`
+
+                    
+          }
+        </style>
       </div>
     </>
   )
 }
+
 
 export default Editor
