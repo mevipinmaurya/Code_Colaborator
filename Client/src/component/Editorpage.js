@@ -30,6 +30,16 @@ function Editorpage() {
   };
 
 
+  // selecting value from select options (compiler language)
+  const [selectedValue, setSelectedValue] = useState('Java');
+
+  // Step 2: Handle change function
+  const handleChange = (event) => {
+    setSelectedValue(event.target.value);
+  };
+
+  // console.log(selectedValue);
+
   const handleError = (e) => {
     console.log('socket error', e);
     toast.error('Socket connection failed', { duration: 2000 });
@@ -128,26 +138,13 @@ function Editorpage() {
         <div className='col-md-10  text-light d-flex flex-column ' >
 
           <div className='w-full py-2 px-2 bg-dark d-flex justify-content-between'>
-            {/* <Dropdown>
-              <Dropdown.Toggle variant="success" id="dropdown-basic">
-                Java
-              </Dropdown.Toggle>
-
-              <Dropdown.Menu>
-                <Dropdown.Item href="#">Java</Dropdown.Item>
-                <Dropdown.Item href="#">C++</Dropdown.Item>
-                <Dropdown.Item href="#">JavaScript</Dropdown.Item>
-                <Dropdown.Item href="#">Python</Dropdown.Item>
-                <Dropdown.Item href="#">Rust</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown> */}
 
             <div className='w-1/3'>
-              <select class="form-select" aria-label="Default select example">
-                <option selected>Java</option>
-                <option value="1">C++ / C</option>
-                <option value="2">JavaScript</option>
-                <option value="3">Python</option>
+              <select id="mySelect" value={selectedValue} onChange={handleChange} className="form-select" aria-label="Default select example">
+                <option value="Java">Java</option>
+                <option value="Cpp">C++</option>
+                <option value="C">C</option>
+                <option value="Python">Python</option>
               </select>
             </div>
 
@@ -158,16 +155,16 @@ function Editorpage() {
                   {isOn ?
                     <AiFillAudio size={"30px"} />
                     :
-                    <AiOutlineAudioMuted style={{color:"green"}} size={"30px"} />
+                    <AiOutlineAudioMuted style={{ color: "green" }} size={"30px"} />
                   }
                 </div>
               </div>
 
-              <div className='mx-3 text-success' style={{ cursor: "pointer" }}>
+              {/* <div className='mx-3 text-success' style={{ cursor: "pointer" }}>
                 <button type="button" className='btn btn-primary' data-toggle="tooltip" data-placement="top" title="Run Code">
                   <IoSend size={"25px"} />
                 </button>
-              </div>
+              </div> */}
               <div className='mx-3 text-success' style={{ cursor: "pointer" }}>
                 <button type="button" className='btn btn-success' data-toggle="tooltip" data-placement="top" title="Copy RoomId" onClick={copyRoomId}>
                   <MdOutlineContentCopy size={"25px"} />
@@ -181,7 +178,7 @@ function Editorpage() {
             </div>
           </div>
 
-          < Editor socketRef={socketRef} roomId={roomId} onCodeChange={(code) => codeRef.current = code} />
+          < Editor socketRef={socketRef} lang={selectedValue} roomId={roomId} onCodeChange={(code) => codeRef.current = code} />
         </div>
       </div>
     </div>

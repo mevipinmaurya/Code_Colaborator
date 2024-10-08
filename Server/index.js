@@ -71,16 +71,19 @@ io.on("connection", (socket) => {
 
 
 app.get("/", (req, res) => {
+  compiler.flush(()=>{
+    console.log("Deleted")
+  })
   res.sendFile("D:/FullStack Projects/Code_Collaborator/Client/src/component/Editor.js")
 })
 
-app.post("/compile", (req, res) => {
+app.post("/compile", (req, res)=> {
   var code = req.body.code;
   var input = req.body.input;
   var lang = req.body.lang;
 
   try {
-    if (lang == "Cpp") {
+    if (lang == "Cpp" || lang == "C") {
       if (!input) {
         var envData = { OS: "windows", cmd: "g++", options: { timeout: 10000 } }; // (uses g++ command to compile )
         compiler.compileCPP(envData, code, function (data) {
@@ -137,7 +140,7 @@ app.post("/compile", (req, res) => {
           if (data.output) {
             res.send(data);
           } else {
-            res.send({ output: "i am python" })
+            res.send({ output: "Error" })
           }
         });
       } else {
@@ -147,7 +150,7 @@ app.post("/compile", (req, res) => {
           if (data.output) {
             res.send(data);
           } else {
-            res.send({ output: "I am python" })
+            res.send({ output: "Error" })
           }
         });
       }

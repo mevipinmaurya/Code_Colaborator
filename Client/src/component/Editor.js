@@ -9,13 +9,15 @@ import "codemirror/lib/codemirror.css"; // Code mirror css
 import CodeMirror from "codemirror";
 import { Socket } from 'socket.io-client';
 import Form from 'react-bootstrap/Form';
+import { IoSend } from "react-icons/io5";
 
 
 
 // code editor
 
-function Editor({ socketRef, roomId, onCodeChange }) {
+function Editor({ socketRef, lang, roomId, onCodeChange }) {
   const editorRef = useRef(null);
+
 
   useEffect(() => {
     const init = async () => {
@@ -30,7 +32,6 @@ function Editor({ socketRef, roomId, onCodeChange }) {
         }
       );
 
-      // for sync code
       editorRef.current = editor;
       editor.setSize(null, "100%");
 
@@ -50,6 +51,39 @@ function Editor({ socketRef, roomId, onCodeChange }) {
     init();
   }, []);
 
+  useEffect(() => {
+    const output = document.getElementById("Output");
+    const run = document.getElementById("runCode");
+
+    const runCode = async () => {
+      const code = {
+        code: editorRef.current.getValue(),
+        input: "",
+        lang: lang,
+      };
+
+      const oData = await fetch("http://localhost:5000/compile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(code),
+      });
+
+      const d = await oData.json();
+      output.value = d.output;
+    };
+
+    if (run) {
+      run.addEventListener("click", runCode);
+    }
+
+    return () => {
+      if (run) {
+        run.removeEventListener("click", runCode);
+      }
+    };
+  }, [lang]); // Add lang as a dependency if it changes
 
   useEffect(() => {
     if (socketRef.current) {
@@ -64,6 +98,7 @@ function Editor({ socketRef, roomId, onCodeChange }) {
     };
   }, [socketRef.current]);
 
+
   return (
     <>
       {/* Code Section */}
@@ -74,12 +109,17 @@ function Editor({ socketRef, roomId, onCodeChange }) {
       {/* Output Section */}
       <div className='bg-dark' style={{ height: "auto" }}>
 
-        <div className='w-full px-2'>
+        <div className='w-full px-2 d-flex justify-content-between mt-2'>
           <h4 className='text-sm'>Output</h4>
+          <div className='mx-3 text-success' style={{ cursor: "pointer" }}>
+            <button type="button" id="runCode" className='btn btn-primary' data-toggle="tooltip" data-placement="top" title="Run Code">
+              <IoSend size={"25px"} />
+            </button>
+          </div>
         </div>
 
-        <Form.Group className="mb-3 text-white" controlId="exampleForm.ControlTextarea1">
-          <Form.Control as="textarea" className='bg-transparent text-white' rows={7} style={{border: "none", outline:"none", resize:"none", color:"whitesmoke"}} placeholder="Your output here ..."/>
+        <Form.Group className="mb-3 text-white">
+          <Form.Control as="textarea" id="Output" className='bg-transparent text-white' rows={7} style={{ border: "none", outline: "none", resize: "none", color: "whitesmoke" }} placeholder="Your output here ..." disabled />
         </Form.Group>
       </div>
     </>
