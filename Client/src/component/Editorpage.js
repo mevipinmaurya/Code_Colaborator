@@ -4,12 +4,13 @@ import Editor from './Editor.js'
 import { initsocket } from '../socket.js';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import Dropdown from 'react-bootstrap/Dropdown';
 import { MdOutlineContentCopy } from "react-icons/md";
 import { RiLogoutCircleLine } from "react-icons/ri";
-import { IoSend } from "react-icons/io5";
 import { AiOutlineAudioMuted } from "react-icons/ai";
 import { AiFillAudio } from "react-icons/ai";
+import { FaVideo } from "react-icons/fa6";
+import { CiVideoOff } from "react-icons/ci";
+import AgoraRTC from 'agora-rtc-sdk-ng';
 
 
 function Editorpage() {
@@ -21,12 +22,89 @@ function Editorpage() {
   const [clients, SetClients] = useState([]);
 
 
+  // Adding Audio Feature
+  const [mic, setMic] = useState(true);
+  const [rtc, setRtc] = useState({
+    localAudioTrack: null,
+    client: null,
+  });
+
+  const options = {
+    appId: "ee307a66fa1345db8099f3613c9e4998",
+    channel: roomId,
+    token: null,
+    uid: Math.floor(Math.random() * 10000),
+  };
+
+  useEffect(() => {
+    const initClient = async () => {
+      const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+      setRtc((prevRtc) => ({ ...prevRtc, client }));
+
+      client.on("user-published", async (user, mediaType) => {
+        await client.subscribe(user, mediaType);
+        if (mediaType === "audio") {
+          user.audioTrack.play();
+        }
+      });
+
+      client.on("user-unpublished", async (user) => {
+        await client.unsubscribe(user);
+      });
+
+      await client.join(options.appId, options.channel, options.token, options.uid);
+      const localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+      await client.publish([localAudioTrack]);
+      // localAudioTrack.play();
+      setRtc((prevRtc) => ({ ...prevRtc, localAudioTrack }));
+
+      // console.log("publish success!");
+    };
+
+    initClient();
+
+    return () => {
+      const leave = async () => {
+        if (rtc.client) {
+          await rtc.client.leave();
+          rtc.localAudioTrack.close();
+        }
+      };
+      leave();
+    };
+  }, []);
+
+  const toggleMic = async () => {
+    if (rtc.localAudioTrack) {
+      if (mic) {
+        await rtc.localAudioTrack.setEnabled(false);
+      } else {
+        await rtc.localAudioTrack.setEnabled(true);
+      }
+      setMic(!mic);
+    }
+  };
+
+
+
+
   // Toggle mic
   const [isOn, setIsOn] = useState(false);
 
   // Function to toggle the state
   const handleToggle = () => {
     setIsOn(prevState => !prevState);
+  };
+
+
+  // Toggle Video
+
+  // Toggle mic
+  const [videoOn, setVideoOn] = useState(false);
+
+  // Function to toggle the state
+  const handleToggleVideo = () => {
+    setVideoOn(prevState => !prevState);
   };
 
 
@@ -151,11 +229,22 @@ function Editorpage() {
             <div className='cursor-pointer d-flex mx-3'>
 
               <div className='mx-3 text-danger my-auto' style={{ cursor: "pointer" }}>
-                <div onClick={handleToggle} data-toggle="tooltip" data-placement="top" title={`${isOn ? "Mic Off" : "Mic On"}`}>
-                  {isOn ?
+                <div  onClick={toggleMic} data-toggle="tooltip" data-placement="top" title={`${mic ? "Mic Off" : "Mic On"}`}>
+                  {mic ?
                     <AiFillAudio size={"30px"} />
                     :
                     <AiOutlineAudioMuted style={{ color: "green" }} size={"30px"} />
+                  }
+                </div>
+              </div>
+
+              {/* Features that can be implemented */}
+              <div className='mx-3 text-danger my-auto' style={{ cursor: "pointer" }}>
+                <div onClick={handleToggleVideo} data-toggle="tooltip" data-placement="top" title={`${videoOn ? "Video Off" : "Video On"}`}>
+                  {videoOn ?
+                    <FaVideo style={{ font: "bold" }} size={"30px"} />
+                    :
+                    <CiVideoOff style={{ color: "green" }} size={"30px"} />
                   }
                 </div>
               </div>
