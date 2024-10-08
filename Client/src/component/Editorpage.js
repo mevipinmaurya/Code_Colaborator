@@ -33,7 +33,7 @@ function Editorpage() {
     appId: "ee307a66fa1345db8099f3613c9e4998",
     channel: roomId,
     token: null,
-    uid: Math.floor(Math.random() * 10000),
+    uid: Math.floor(Math.random() * 2032),
   };
 
   useEffect(() => {
@@ -49,7 +49,14 @@ function Editorpage() {
       });
 
       client.on("user-unpublished", async (user) => {
-        await client.unsubscribe(user);
+        // await client.unsubscribe(user);
+        if (user.uid !== options.uid) { // Check if it's not the local user
+          try {
+            await client.unsubscribe(user);
+          } catch (error) {
+            console.error("Unsubscribe error:", error);
+          }
+        }
       });
 
       await client.join(options.appId, options.channel, options.token, options.uid);
@@ -104,7 +111,8 @@ function Editorpage() {
 
   // Function to toggle the state
   const handleToggleVideo = () => {
-    setVideoOn(prevState => !prevState);
+    // setVideoOn(prevState => !prevState);
+    toast.error("Feature Coming Soon!")
   };
 
 
@@ -193,7 +201,7 @@ function Editorpage() {
       <div className='row h-100 '>
         {/* left section of editor page */}
         <div className='col-md-2 bg-dark text-light d-flex flex-column h-100 ' style={{ boxShadow: "2px 0px 4px rgba(0,0,0,0.1)" }}>
-          <img className='img-fluid mx-auto d-block mb-3 mt-3' src="/images/logo.png" style={{ maxWidth: '150px', marginTop: "0px" }} />
+          <img className='img-fluid mx-auto d-block mb-3 mt-3' src="/images/logo.png" style={{ maxWidth: '120px', marginTop: "0px" }} />
           <hr style={{ marginTop: "-0rem" }} />
           {/* client list container */}
           <div className='d-flex flex-column  overflow-auto'>
@@ -208,7 +216,8 @@ function Editorpage() {
             {/* <button onClick={copyRoomId} className='btn btn-success btn-block'>Copy RoomId</button>
             <button onClick={leaveRoom} className='btn btn-danger mt-2 mb-2 px-3 btn-block'>Leave Room</button> */}
 
-            <p className='text-center text-secondary'>All rights are reserved to CodeTogether.</p>
+            {/* <p className='text-center text-secondary'>All rights are reserved to CodeTogether.</p> */}
+            <p className='text-center text-secondary'>Created by Vipin and Shubham</p>
           </div>
         </div>
 
@@ -229,9 +238,9 @@ function Editorpage() {
             <div className='cursor-pointer d-flex mx-3'>
 
               <div className='mx-3 text-danger my-auto' style={{ cursor: "pointer" }}>
-                <div  onClick={toggleMic} data-toggle="tooltip" data-placement="top" title={`${mic ? "Mic Off" : "Mic On"}`}>
+                <div onClick={toggleMic} data-toggle="tooltip" data-placement="top" title={`${mic ? "Mic Off" : "Mic On"}`}>
                   {mic ?
-                    <AiFillAudio size={"30px"} />
+                    <AiFillAudio size={"30px"} className='d-sm-inline' />
                     :
                     <AiOutlineAudioMuted style={{ color: "green" }} size={"30px"} />
                   }
@@ -239,7 +248,7 @@ function Editorpage() {
               </div>
 
               {/* Features that can be implemented */}
-              <div className='mx-3 text-danger my-auto' style={{ cursor: "pointer" }}>
+              <div className='d-none d-sm-block mx-3 text-danger my-auto' style={{ cursor: "pointer" }}>
                 <div onClick={handleToggleVideo} data-toggle="tooltip" data-placement="top" title={`${videoOn ? "Video Off" : "Video On"}`}>
                   {videoOn ?
                     <FaVideo style={{ font: "bold" }} size={"30px"} />
@@ -249,11 +258,6 @@ function Editorpage() {
                 </div>
               </div>
 
-              {/* <div className='mx-3 text-success' style={{ cursor: "pointer" }}>
-                <button type="button" className='btn btn-primary' data-toggle="tooltip" data-placement="top" title="Run Code">
-                  <IoSend size={"25px"} />
-                </button>
-              </div> */}
               <div className='mx-3 text-success' style={{ cursor: "pointer" }}>
                 <button type="button" className='btn btn-success' data-toggle="tooltip" data-placement="top" title="Copy RoomId" onClick={copyRoomId}>
                   <MdOutlineContentCopy size={"25px"} />
